@@ -52,15 +52,13 @@ public class Timetable {
                 .collect(Collectors.toList());
     }
 
-    public List<TrainingSession> getTrainingSessionsForDay(DayOfWeek dayOfWeek) {
+    public Map<TimeOfDay, List<TrainingSession>> getTrainingSessionsForDay(DayOfWeek dayOfWeek) {
         //как реализовать, тоже непонятно, но сложность должна быть О(1)
         Map<TimeOfDay, List<TrainingSession>> result = timetable.get(dayOfWeek);
         if (dayOfWeek != null && result != null) {
-            return result.values().stream()
-                    .flatMap(List::stream)
-                    .collect(Collectors.toCollection(ArrayList::new));
+            return result;
         }
-        return new ArrayList<>();
+        return new HashMap<>();
     }
 
     public List<TrainingSession> getTrainingSessionsForDayAndTime(DayOfWeek dayOfWeek, TimeOfDay timeOfDay) {

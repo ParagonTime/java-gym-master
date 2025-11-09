@@ -22,11 +22,11 @@ public class TimetableTest {
         timetable.addNewTrainingSession(singleTrainingSession);
 
         //Проверить, что за понедельник вернулось одно занятие
-        List<TrainingSession> list = timetable.getTrainingSessionsForDay(DayOfWeek.MONDAY);
-        assertEquals(1,list.size());
+        Map<TimeOfDay, List<TrainingSession>> mapa = timetable.getTrainingSessionsForDay(DayOfWeek.MONDAY);
+        assertEquals(1,mapa.size());
         //Проверить, что за вторник не вернулось занятий
-        list = timetable.getTrainingSessionsForDay(DayOfWeek.TUESDAY);
-        assertEquals(0, list.size());
+        mapa = timetable.getTrainingSessionsForDay(DayOfWeek.TUESDAY);
+        assertEquals(0, mapa.size());
     }
 
     @Test
@@ -54,18 +54,19 @@ public class TimetableTest {
         timetable.addNewTrainingSession(saturdayChildTrainingSession);
 
         // Проверить, что за понедельник вернулось одно занятие
-        List<TrainingSession> list = timetable.getTrainingSessionsForDay(DayOfWeek.MONDAY);
-        assertEquals(1,list.size());
+        Map<TimeOfDay, List<TrainingSession>> mapa = timetable.getTrainingSessionsForDay(DayOfWeek.MONDAY);
+        assertEquals(1,mapa.size());
         // Проверить, что за четверг вернулось два занятия в правильном порядке: сначала в 13:00, потом в 20:00
-        list = timetable.getTrainingSessionsForDay(DayOfWeek.THURSDAY);
-        assertEquals(2, list.size());
+        mapa = timetable.getTrainingSessionsForDay(DayOfWeek.THURSDAY);
+        assertEquals(2, mapa.size());
         TimeOfDay time13 = new TimeOfDay(13, 0);
         TimeOfDay time20 = new TimeOfDay(20, 0);
-        assertEquals(time13, list.get(0).getTimeOfDay());
-        assertEquals(list.get(1).getTimeOfDay(), time20);
+        Iterator<TimeOfDay> iterator = mapa.keySet().iterator();
+        assertEquals(time13, iterator.next());
+        assertEquals(time20, iterator.next());
         // Проверить, что за вторник не вернулось занятий
-        list = timetable.getTrainingSessionsForDay(DayOfWeek.TUESDAY);
-        assertEquals(0, list.size());
+        mapa = timetable.getTrainingSessionsForDay(DayOfWeek.TUESDAY);
+        assertEquals(0, mapa.size());
     }
 
     @Test
@@ -91,8 +92,8 @@ public class TimetableTest {
     public void testGetTrainingSessionsForDayWhenTimetableIsEmpty() {
         Timetable timetable = new Timetable();
 
-        List<TrainingSession> list = timetable.getTrainingSessionsForDay(DayOfWeek.MONDAY);
-        assertEquals(0, list.size());
+        Map<TimeOfDay, List<TrainingSession>> mapa = timetable.getTrainingSessionsForDay(DayOfWeek.MONDAY);
+        assertEquals(0, mapa.size());
     }
 
     @Test
@@ -114,8 +115,8 @@ public class TimetableTest {
 
         timetable.addNewTrainingSession(singleTrainingSession);
 
-        List<TrainingSession> list = timetable.getTrainingSessionsForDay(null);
-        assertEquals(0, list.size());
+        Map<TimeOfDay, List<TrainingSession>> mapa = timetable.getTrainingSessionsForDay(null);
+        assertEquals(0, mapa.size());
     }
 
     @Test
@@ -184,8 +185,8 @@ public class TimetableTest {
         timetable.addNewTrainingSession(singleTrainingSession);
         timetable.addNewTrainingSession(singleTrainingSession);
 
-        List<TrainingSession> list = timetable.getTrainingSessionsForDay(DayOfWeek.MONDAY);
-
+        Map<TimeOfDay, List<TrainingSession>> mapa = timetable.getTrainingSessionsForDay(DayOfWeek.MONDAY);
+        List<TrainingSession> list = mapa.get(new TimeOfDay(13, 0));
         assertEquals(1, list.size());
     }
 
@@ -202,8 +203,8 @@ public class TimetableTest {
         timetable.addNewTrainingSession(singleTrainingSession);
         timetable.addNewTrainingSession(singleTrainingSession);
 
-        List<TrainingSession> list = timetable.getTrainingSessionsForDay(DayOfWeek.MONDAY);
-
+        Map<TimeOfDay, List<TrainingSession>> mapa = timetable.getTrainingSessionsForDay(DayOfWeek.MONDAY);
+        List<TrainingSession> list = mapa.get(new TimeOfDay(13, 0));
         assertEquals(1, list.size());
     }
 }
