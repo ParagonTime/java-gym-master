@@ -1,16 +1,14 @@
 package ru.yandex.practicum.gym;
 
 import java.util.*;
-import java.util.stream.Collectors;
 
 public class Timetable {
 
-    private final Map<DayOfWeek, Map<TimeOfDay, List<TrainingSession>>> timetable;
-    private final Map<Coach, Integer> coachWorkload;
+    private final TreeMap<DayOfWeek, TreeMap<TimeOfDay, List<TrainingSession>>> timetable;
+
 
     public Timetable() {
-        timetable = new HashMap<>();
-        coachWorkload = new HashMap<>();
+        timetable = new TreeMap<>();
     }
 
     public void addNewTrainingSession(TrainingSession trainingSession) {
@@ -20,7 +18,7 @@ public class Timetable {
         DayOfWeek dayOfWeek = trainingSession.getDayOfWeek();
         TimeOfDay timeOfDay = trainingSession.getTimeOfDay();
         if (!timetable.containsKey(dayOfWeek)) {
-            Map<TimeOfDay, List<TrainingSession>> map = new TreeMap<>();
+            TreeMap<TimeOfDay, List<TrainingSession>> map = new TreeMap<>();
             timetable.put(dayOfWeek, map);
         }
         if (!timetable.get(dayOfWeek).containsKey(timeOfDay)) {
@@ -36,29 +34,30 @@ public class Timetable {
         }
         sessions.add(trainingSession);
 
-        if (coachWorkload.containsKey(coach)) {
-            coachWorkload.put(coach, coachWorkload.get(coach) + 1);
-        } else {
-            coachWorkload.put(coach, 1);
-        }
+
     }
 
     public List<Map.Entry<Coach, Integer>> getCountByCoaches() {
-        if (coachWorkload.isEmpty()) {
-            return new ArrayList<>();
-        }
-        return coachWorkload.entrySet().stream()
-                .sorted(Map.Entry.<Coach, Integer>comparingByValue().reversed())
-                .collect(Collectors.toList());
+
+        List<TrainingSession> listTraining = timetable.entrySet().stream()
+                .flatMap((x) -> x.getValue().entrySet().stream()
+                        .flatMap(y -> y.getValue().stream()))
+                .toList();
+        Map<Coach, Integer> mapCount = new HashMap<>();
+        listTraining.forEach(x -> mapCount.put(x.getCoach(), mapCount.getOrDefault(x.getCoach(), 0) + 1));
+        return mapCount.entrySet().stream()
+                .sorted((o1, o2) -> o2.getValue() - o1.getValue())
+                .toList();
     }
 
-    public Map<TimeOfDay, List<TrainingSession>> getTrainingSessionsForDay(DayOfWeek dayOfWeek) {
+    public TreeMap<TimeOfDay, List<TrainingSession>> getTrainingSessionsForDay(DayOfWeek dayOfWeek) {
         //как реализовать, тоже непонятно, но сложность должна быть О(1)
-        Map<TimeOfDay, List<TrainingSession>> result = timetable.get(dayOfWeek);
-        if (dayOfWeek != null && result != null) {
+        if (dayOfWeek == null) return new TreeMap<>();
+        TreeMap<TimeOfDay, List<TrainingSession>> result = timetable.get(dayOfWeek);
+        if (result != null) {
             return result;
         }
-        return new HashMap<>();
+        return new TreeMap<>();
     }
 
     public List<TrainingSession> getTrainingSessionsForDayAndTime(DayOfWeek dayOfWeek, TimeOfDay timeOfDay) {
@@ -70,10 +69,6 @@ public class Timetable {
         if (mapa == null) {
             return new ArrayList<>();
         }
-        List<TrainingSession> list = mapa.get(timeOfDay);
-        if (list == null) {
-            return new ArrayList<>();
-        }
-        return list;
+        return mapa.getOrDefault(timeOfDay, Collections.emptyList());
     }
 }
